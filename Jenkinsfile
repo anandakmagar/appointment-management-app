@@ -52,8 +52,8 @@ pipeline {
             steps {
                 script {
                     // Apply the Kubernetes deployment and service YAML files
-                    sh "kubectl apply -f k8s/appointment-management-app-deployment.yaml"
-                    sh "kubectl apply -f k8s/appointment-management-app-service.yaml"
+                    sh "kubectl apply -f k8s/appointment-management-app-deployment.yml"
+                    sh "kubectl apply -f k8s/appointment-management-app-service.yml"
                 }
             }
         }
