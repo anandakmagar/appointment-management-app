@@ -1,4 +1,4 @@
-FROM openjdk:17-jre-slim
+FROM openjdk:17-slim
 WORKDIR /app
 COPY target/appointment-management-app.jar /app/app.jar
 EXPOSE 8080
