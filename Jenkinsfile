@@ -15,10 +15,19 @@ pipeline {
             }
         }
 
+        stage('Build JAR') {
+            steps {
+                script {
+                    // Run Maven to build the project and generate the JAR file
+                    sh 'mvn clean package'
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image
+                    // Build the Docker image using the generated JAR file
                     docker.build("${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}")
                 }
             }
@@ -43,8 +52,8 @@ pipeline {
             steps {
                 script {
                     // Apply the Kubernetes deployment and service YAML files
-                    sh "kubectl apply -f k8s/backend-deployment.yaml"
-                    sh "kubectl apply -f k8s/backend-service.yaml"
+                    sh "kubectl apply -f k8s/appointment-management-app-deployment.yaml"
+                    sh "kubectl apply -f k8s/appointment-management-app-service.yaml"
                 }
             }
         }
