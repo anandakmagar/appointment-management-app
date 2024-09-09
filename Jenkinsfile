@@ -11,8 +11,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                // Checkout the code from Git repository
-                git 'https://github.com/anandakmagar/appointment-management-app.git'
+                git credentialsId: 'github-credentials', branch: 'main', url: 'https://github.com/anandakmagar/appointment-management-app.git'
             }
         }
 
