@@ -2,14 +2,16 @@ pipeline {
     agent any
 
     environment {
-        ECR_REGISTRY = '595000426613.dkr.ecr.us-east-2.amazonaws.com'
-        ECR_REPOSITORY = 'appointment-management-ecr-repo'
-        IMAGE_TAG = "${env.BUILD_ID}"
+        AWS_REGION = 'us-east-2'
+        ECR_REGISTRY = '595000426613.dkr.ecr.us-east-2.amazonaws.com'  // ECR registry URL
+        ECR_REPOSITORY = 'appointment-management-ecr-repo'  // ECR repository
+        IMAGE_TAG = "${env.BUILD_ID}"  // Jenkins build ID used as Docker image tag
     }
 
     stages {
         stage('Checkout Code') {
             steps {
+                // Checkout the code from Git repository
                 git 'https://github.com/anandakmagar/appointment-management-app.git'
             }
         }
@@ -17,6 +19,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    // Build the Docker image
                     docker.build("${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}")
                 }
             }
@@ -25,11 +28,14 @@ pipeline {
         stage('Push Docker Image to ECR') {
             steps {
                 script {
-                    // Authenticate Docker to ECR using the IAM role
-                    sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
+                    // Use AWS credentials stored in Jenkins to authenticate with ECR
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-ecr-credentials']]) {
+                        // Authenticate Docker to ECR using AWS credentials
+                        sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
 
-                    // Build and push the Docker image to ECR
-                    docker.image("${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}").push()
+                        // Push the Docker image to ECR
+                        docker.image("${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}").push()
+                    }
                 }
             }
         }
@@ -37,8 +43,9 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    sh "kubectl apply -f k8s/appointment-management-app-deployment.yaml"
-                    sh "kubectl apply -f k8s/appointment-management-app-deployment.yaml"
+                    // Apply the Kubernetes deployment and service YAML files
+                    sh "kubectl apply -f k8s/backend-deployment.yaml"
+                    sh "kubectl apply -f k8s/backend-service.yaml"
                 }
             }
         }
