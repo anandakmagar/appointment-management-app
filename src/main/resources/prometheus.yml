@@ -1,0 +1,10 @@
+#scrape_configs:
+#  - job_name: 'appointment-management-app'
+#    scrape_interval: 5s
+#    static_configs:
+#      - targets: ['appointment-management-da90d3c8d8ca.herokuapp.com']
+#    metrics_path: '/actuator/prometheus'
+#    scheme: https
+
+
+#I already created this file in ec2 instance, so I am not placing it here

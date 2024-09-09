@@ -1,0 +1,56 @@
+server:
+  port: 8080
+#  port: ${PORT:8080}
+spring:
+  security:
+    user:
+      email: admin@admin.com
+      password: adminpassword
+      role: ADMIN
+  application:
+    name: appointment-management-app
+  datasource:
+    initialization-mode: always
+    username: admin
+    password: admin1234
+#    url: jdbc:mysql://database-1.coz3uh2yaw2j.us-east-2.rds.amazonaws.com/appointmentsdb
+    url: jdbc:mysql://database-2.coz3uh2yaw2j.us-east-2.rds.amazonaws.com/appointmentsdb
+  jpa:
+    properties:
+      javax.persistence.schema-generation.database.action: update
+  kafka:
+    bootstrap-servers: "coherent-mako-9849-us1-kafka.upstash.io:9092"
+    properties:
+      security.protocol: SASL_SSL
+      sasl.mechanism: SCRAM-SHA-256
+      sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="Y29oZXJlbnQtbWFrby05ODQ5JOaiVQzt56_TgD3d3wif5lKsj-B3mRXbkimxlZo" password="YTc1M2ZiZWYtZGY5Ny00MWY0LTk0MWQtZTNmZWEzYjFiZGZm";
+
+    consumer:
+      group-id: "appointment-scheduling-group"
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+    admin:
+      properties:
+        bootstrap.servers: "coherent-mako-9849-us1-kafka.upstash.io:9092"
+        sasl.mechanism: SCRAM-SHA-256
+        security.protocol: SASL_SSL
+        sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="Y29oZXJlbnQtbWFrby05ODQ5JOaiVQzt56_TgD3d3wif5lKsj-B3mRXbkimxlZo" password="YTc1M2ZiZWYtZGY5Ny00MWY0LTk0MWQtZTNmZWEzYjFiZGZm";
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    enable:
+      hikaricp: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
