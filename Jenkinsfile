@@ -51,9 +51,19 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Apply the Kubernetes deployment and service YAML files
-                    sh "kubectl apply -f k8s/appointment-management-app-deployment.yml"
-                    sh "kubectl apply -f k8s/appointment-management-app-service.yml"
+                    // Set KUBECONFIG to point to the kubeconfig file in the workspace
+                    env.KUBECONFIG = "${WORKSPACE}/.kube/config"
+
+                    // Apply the Kubernetes deployment YAML
+                    try {
+                        echo "Applying Kubernetes deployment..."
+                        sh "kubectl apply -f k8s/appointment-management-app-deployment.yml"
+
+                        echo "Applying Kubernetes service..."
+                        sh "kubectl apply -f k8s/appointment-management-app-service.yml"
+                    } catch (Exception e) {
+                        error("Deployment failed: ${e}")
+                    }
                 }
             }
         }
