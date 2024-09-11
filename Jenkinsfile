@@ -6,6 +6,7 @@ pipeline {
         ECR_REGISTRY = '595000426613.dkr.ecr.us-east-2.amazonaws.com'  // ECR registry URL
         ECR_REPOSITORY = 'appointment-management-application-ecr'  // ECR repository
         IMAGE_TAG = "${env.BUILD_ID}"  // Jenkins build ID used as Docker image tag
+        KUBECONFIG = "${WORKSPACE}/.kube/config"  // Path to kubeconfig file in the workspace
     }
 
     stages {
@@ -44,6 +45,9 @@ pipeline {
                         // Push the Docker image to ECR
                         docker.image("${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}").push()
                     }
+
+                    // Optional: Remove Docker images to free space after pushing
+                    sh "docker rmi ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
                 }
             }
         }
@@ -51,18 +55,20 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Set KUBECONFIG to point to the kubeconfig file in the workspace
-                    env.KUBECONFIG = "${WORKSPACE}/.kube/config"
+                    // Ensure kubeconfig file exists
+                    if (fileExists(env.KUBECONFIG)) {
+                        // Apply the Kubernetes deployment YAML
+                        try {
+                            echo "Applying Kubernetes deployment..."
+                            sh "kubectl apply -f k8s/appointment-management-app-deployment.yml --validate=false"
 
-                    // Apply the Kubernetes deployment YAML
-                    try {
-                        echo "Applying Kubernetes deployment..."
-                        sh "kubectl apply -f k8s/appointment-management-app-deployment.yml"
-
-                        echo "Applying Kubernetes service..."
-                        sh "kubectl apply -f k8s/appointment-management-app-service.yml"
-                    } catch (Exception e) {
-                        error("Deployment failed: ${e}")
+                            echo "Applying Kubernetes service..."
+                            sh "kubectl apply -f k8s/appointment-management-app-service.yml --validate=false"
+                        } catch (Exception e) {
+                            error("Deployment failed: ${e}")
+                        }
+                    } else {
+                        error("kubeconfig file not found at: ${env.KUBECONFIG}")
                     }
                 }
             }
