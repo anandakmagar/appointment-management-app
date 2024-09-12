@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: backend-app
-          image: 595000426613.dkr.ecr.us-east-2.amazonaws.com/appointment-management-app-repo:${IMAGE_TAG} # Updated with placeholder
+          image: 595000426613.dkr.ecr.us-east-2.amazonaws.com/appointment-management-application-ecr:${IMAGE_TAG} # Updated with placeholder
           ports:
             - containerPort: 8080
           resources:
@@ -42,4 +42,3 @@ spec:
               port: 8080
             initialDelaySeconds: 30
             periodSeconds: 30
-#
