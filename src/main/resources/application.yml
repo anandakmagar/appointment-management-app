@@ -13,8 +13,7 @@ spring:
     initialization-mode: always
     username: admin
     password: admin1234
-#    url: jdbc:mysql://database-1.coz3uh2yaw2j.us-east-2.rds.amazonaws.com/appointmentsdb
-    url: jdbc:mysql://database-2.coz3uh2yaw2j.us-east-2.rds.amazonaws.com/appointmentsdb
+    url: jdbc:mysql://database-1.cnyg8ik02sy8.us-east-2.rds.amazonaws.com/appointmentsdb
   jpa:
     properties:
       javax.persistence.schema-generation.database.action: update
