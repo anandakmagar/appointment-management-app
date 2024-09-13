@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         AWS_REGION = 'us-east-2'
-        ECR_REGISTRY = '595000426613.dkr.ecr.us-east-2.amazonaws.com'  // ECR registry URL
-        ECR_REPOSITORY = 'appointment-management-application-ecr'  // ECR repository
+        ECR_REGISTRY = '626635406112.dkr.ecr.us-east-2.amazonaws.com'  // ECR registry URL
+        ECR_REPOSITORY = 'appointment-management-ecr-repo'  // ECR repository
         IMAGE_TAG = "${env.BUILD_ID}"  // Jenkins build ID used as Docker image tag
         KUBECONFIG = "${WORKSPACE}/.kube/config"  // Path to kubeconfig file in the workspace
     }
@@ -38,7 +38,7 @@ pipeline {
             steps {
                 script {
                     // Use AWS credentials stored in Jenkins to authenticate with ECR
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-ecr-credentials']]) {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
                         // Authenticate Docker to ECR using AWS credentials
                         sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
 
