@@ -10,13 +10,6 @@ pipeline {
     }
 
     stages {
-        stage('Clean Workspace') {
-            steps {
-                // Clean the workspace to free up disk space before the build
-                cleanWs()
-            }
-        }
-
         stage('Checkout Code') {
             steps {
                 git credentialsId: 'github-credentials', branch: 'main', url: 'https://github.com/anandakmagar/appointment-management-app.git'
@@ -26,7 +19,6 @@ pipeline {
         stage('Build JAR') {
             steps {
                 script {
-                    // Run Maven to build the project and generate the JAR file
                     sh 'mvn clean package'
                 }
             }
@@ -35,7 +27,6 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image using the generated JAR file
                     docker.build("${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}")
                 }
             }
@@ -44,16 +35,10 @@ pipeline {
         stage('Push Docker Image to ECR') {
             steps {
                 script {
-                    // Use AWS credentials stored in Jenkins to authenticate with ECR
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
-                        // Authenticate Docker to ECR using AWS credentials
                         sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
-
-                        // Push the Docker image to ECR
                         docker.image("${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}").push()
                     }
-
-                    // Optional: Remove Docker images to free space after pushing
                     sh "docker rmi ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
                 }
             }
@@ -62,7 +47,17 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'K8S', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
+                    // Use the kubeconfig stored as a secret in Jenkins
+                    withKubeConfig(
+                        credentialsId: 'K8S',  // This should be the Jenkins secret with your kubeconfig
+                        serverUrl: 'https://90BFFB881F7D38F052634E35DDF281B7.gr7.us-east-2.eks.amazonaws.com',  // Replace with your correct cluster API URL if necessary
+                        clusterName: 'appt-eks',  // Match the cluster name in the kubeconfig
+                        contextName: 'iam-root-account@appt-eks.us-east-2.eksctl.io',  // Correct context name from kubeconfig
+                        namespace: 'default'  // Use the appropriate namespace
+                    ) {
+                        // Debugging step: View the kubeconfig being used
+                        sh "kubectl config view"
+
                         // Apply the Kubernetes YAML configuration file to deploy the app
                         sh "kubectl apply -f ${WORKSPACE}/eks-deploy-k8s.yml --validate=false"
                     }
@@ -70,19 +65,10 @@ pipeline {
             }
         }
 
-        stage('Cleanup Docker') {
-            steps {
-                script {
-                    // Clean up Docker images and containers to free up space
-                    sh 'docker system prune -af'
-                }
-            }
-        }
     }
 
     post {
         always {
-            // Clean workspace after the pipeline completes
             cleanWs()
         }
     }
