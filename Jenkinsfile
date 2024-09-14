@@ -57,7 +57,7 @@ pipeline {
                 script {
                     withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'K8S', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
                         // Apply the Kubernetes YAML configuration file to deploy the app
-                        sh "kubectl apply -f ${WORKSPACE}/eks-deploy-k8s.yml"
+                        sh "kubectl apply -f ${WORKSPACE}/eks-deploy-k8s.yml --validate=false"
                     }
                 }
             }
