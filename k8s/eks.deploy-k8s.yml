@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   labels:
     app: appt-app
-  name: springboot-app
+  name: appt-app
 spec:
   replicas: 4
   selector:
