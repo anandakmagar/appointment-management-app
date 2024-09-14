@@ -55,20 +55,8 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Ensure kubeconfig file exists
-                    if (fileExists(env.KUBECONFIG)) {
-                        // Apply the Kubernetes deployment YAML
-                        try {
-                            echo "Applying Kubernetes deployment..."
-                            sh "kubectl apply -f k8s/appointment-management-app-deployment.yml --validate=false"
-
-                            echo "Applying Kubernetes service..."
-                            sh "kubectl apply -f k8s/appointment-management-app-service.yml --validate=false"
-                        } catch (Exception e) {
-                            error("Deployment failed: ${e}")
-                        }
-                    } else {
-                        error("kubeconfig file not found at: ${env.KUBECONFIG}")
+                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'K8S', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
+                        sh "kubectl apply -f"
                     }
                 }
             }
