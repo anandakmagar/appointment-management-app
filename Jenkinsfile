@@ -37,12 +37,17 @@ pipeline {
                 script {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
                         sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
+                        // Add a tag step to explicitly tag the image as 'latest'
+                        sh "docker tag ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG} ${ECR_REGISTRY}/${ECR_REPOSITORY}:latest"
+                        // Push the 'latest' tag
                         docker.image("${ECR_REGISTRY}/${ECR_REPOSITORY}:latest").push()
+                        docker.image("${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}").push()
                     }
                     sh "docker rmi ${ECR_REGISTRY}/${ECR_REPOSITORY}:latest"
                 }
             }
         }
+
 
         stage('Deploy to Kubernetes') {
             steps {
