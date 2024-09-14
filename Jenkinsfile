@@ -56,9 +56,6 @@ pipeline {
             steps {
                 script {
                     withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'K8S', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
-                        // List all files in the workspace to debug the file path
-                        sh 'ls -l $WORKSPACE'
-
                         // Apply the Kubernetes YAML configuration file to deploy the app
                         sh "kubectl apply -f ${WORKSPACE}/eks-deploy-k8s.yml"
                     }
