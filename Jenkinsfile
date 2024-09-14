@@ -49,15 +49,14 @@ pipeline {
                 script {
                     // Use the kubeconfig stored as a secret in Jenkins
                     withKubeConfig(
-                        credentialsId: 'K8S',  // This should be the Jenkins secret with your kubeconfig
-                        serverUrl: 'https://79098F446993D254B95FF8C89807106D.gr7.us-east-2.eks.amazonaws.com',  // Your correct cluster API URL
-                        clusterName: 'arn:aws:eks:us-east-2:626635406112:cluster/appt-eks',  // The cluster name from the kubeconfig
-                        contextName: 'arn:aws:eks:us-east-2:626635406112:cluster/appt-eks',  // Correct context name from kubeconfig
-                        namespace: 'default'  // Use the appropriate namespace
+                        caCertificate: '',
+                        clusterName: '',
+                        contextName: '',
+                        credentialsId: 'K8S',
+                        namespace: '',
+                        restrictKubeConfigAccess: false,
+                        serverUrl: ''
                     ) {
-                        // Debugging step: View the kubeconfig being used
-                        sh "kubectl config view"
-
                         // Apply the Kubernetes YAML configuration file to deploy the app
                         sh "kubectl apply -f ${WORKSPACE}/eks-deploy-k8s.yml --validate=false"
                     }
