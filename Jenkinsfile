@@ -37,9 +37,9 @@ pipeline {
                 script {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
                         sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
-                        docker.image("${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}").push()
+                        docker.image("${ECR_REGISTRY}/${ECR_REPOSITORY}:latest").push()
                     }
-                    sh "docker rmi ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+                    sh "docker rmi ${ECR_REGISTRY}/${ECR_REPOSITORY}:latest"
                 }
             }
         }

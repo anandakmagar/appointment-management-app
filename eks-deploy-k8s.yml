@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: my-appt-app
-          image: 626635406112.dkr.ecr.us-east-2.amazonaws.com/appointment-management-ecr-repo
+          image: 626635406112.dkr.ecr.us-east-2.amazonaws.com/appointment-management-ecr-repo:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8085
