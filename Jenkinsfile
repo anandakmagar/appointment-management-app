@@ -10,6 +10,13 @@ pipeline {
     }
 
     stages {
+        stage('Clean Workspace') {
+            steps {
+                // Clean the workspace to free up disk space before the build
+                cleanWs()
+            }
+        }
+
         stage('Checkout Code') {
             steps {
                 git credentialsId: 'github-credentials', branch: 'main', url: 'https://github.com/anandakmagar/appointment-management-app.git'
@@ -63,5 +70,20 @@ pipeline {
             }
         }
 
+        stage('Cleanup Docker') {
+            steps {
+                script {
+                    // Clean up Docker images and containers to free up space
+                    sh 'docker system prune -af'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Clean workspace after the pipeline completes
+            cleanWs()
+        }
     }
 }
