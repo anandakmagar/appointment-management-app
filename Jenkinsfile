@@ -53,26 +53,14 @@ pipeline {
             steps {
                 script {
                     // Use the kubeconfig stored as a secret in Jenkins
-//                     withKubeConfig(
-//                         caCertificate: '',
-//                         clusterName: '',
-//                         contextName: '',
-//                         credentialsId: 'K8S',
-//                         namespace: '',
-//                         restrictKubeConfigAccess: false,
-//                         serverUrl: ''
-//                     ) {
-//                         // Apply the Kubernetes YAML configuration file to deploy the app
-//                         sh "kubectl apply -f ${WORKSPACE}/eks-deploy-k8s.yml --validate=false"
-//                     }
-
                     withKubeConfig(
-                        credentialsId: 'k8s-credentials',  // Jenkins credentials with your kubeconfig file
-                        serverUrl: 'https://F58275C47EC089B4030DE7E0DBD3BE87.gr7.us-east-2.eks.amazonaws.com',  // Your EKS server URL
-                        clusterName: 'appointment-eks',  // Your EKS cluster name
-                        contextName: 'arn:aws:eks:us-east-2:626635406112:cluster/appointment-eks',  // Context for your cluster
-                        namespace: 'default',  // Use the appropriate namespace for your deployment
-                        restrictKubeConfigAccess: true  // Restrict access to kubeconfig file for security
+                        caCertificate: '',
+                        clusterName: '',
+                        contextName: '',
+                        credentialsId: 'K8S',
+                        namespace: '',
+                        restrictKubeConfigAccess: false,
+                        serverUrl: ''
                     ) {
                         // Apply the Kubernetes YAML configuration file to deploy the app
                         sh "kubectl apply -f ${WORKSPACE}/eks-deploy-k8s.yml --validate=false"
