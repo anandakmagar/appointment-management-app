@@ -48,47 +48,6 @@ pipeline {
             }
         }
 
-
-//         stage('Deploy to Kubernetes') {
-//             steps {
-//                 script {
-//                     // Use the kubeconfig stored as a secret in Jenkins
-//                     withKubeConfig(
-//                         caCertificate: '',
-//                         clusterName: '',
-//                         contextName: '',
-//                         credentialsId: 'K8S',
-//                         namespace: '',
-//                         restrictKubeConfigAccess: false,
-//                         serverUrl: ''
-//                     ) {
-//                         // Apply the Kubernetes YAML configuration file to deploy the app
-//                         sh "kubectl apply -f ${WORKSPACE}/eks-deploy-k8s.yml --validate=false"
-//                     }
-//
-//                 }
-//             }
-//         }
-
-//         stage('Deploy to Kubernetes') {
-//             steps {
-//                 script {
-//                     // Use the kubeconfig stored as a secret in Jenkins
-//                     withKubeConfig(
-//                         credentialsId: 'K8S',  // Make sure this matches the credentials ID of your kubeconfig
-//                         serverUrl: 'https://F58275C47EC089B4030DE7E0DBD3BE87.gr7.us-east-2.eks.amazonaws.com',  // Your EKS server URL
-//                         contextName: 'arn:aws:eks:us-east-2:626635406112:cluster/appointment-eks',  // Context for your cluster
-//                         clusterName: 'appointment-eks',  // EKS cluster name
-//                         namespace: 'default',  // Namespace for the deployment
-//                         restrictKubeConfigAccess: false  // If you want to restrict access, set to true
-//                     ) {
-//                         // Apply the Kubernetes YAML configuration file to deploy the app
-//                         sh "kubectl apply -f ${WORKSPACE}/eks-deploy-k8s.yml --validate=false"
-//                     }
-//                 }
-//             }
-//         }
-
         stage('Deploy to Kubernetes') {
             steps {
                 script {
