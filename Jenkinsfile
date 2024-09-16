@@ -63,7 +63,8 @@ pipeline {
                         serverUrl: ''
                     ) {
                         // Apply the Kubernetes YAML configuration file to deploy the app
-                        sh "kubectl apply -f ${WORKSPACE}/eks-deploy-k8s.yml --validate=false"
+//                         sh "kubectl apply -f ${WORKSPACE}/eks-deploy-k8s.yml --validate=false"
+                        sh "kubectl apply -f /var/lib/jenkins/workspace/appointment-management-app-CICD/eks-deploy-k8s.yml --validate=false"
                     }
                 }
             }
