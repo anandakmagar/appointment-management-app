@@ -1,53 +1,126 @@
-#apiVersion: apps/v1
-#kind: Deployment
-#metadata:
-#  labels:
-#    app: appt-app
-#  name: appt-app
-#spec:
-#  replicas: 4
-#  selector:
-#    matchLabels:
-#      app: appt-app
-#  template:
-#    metadata:
-#      labels:
-#        app: appt-app
-#    spec:
-#      containers:
-#        - name: my-appt-app
-#          image: 626635406112.dkr.ecr.us-east-2.amazonaws.com/appointment-management-ecr-repo:latest
-#          imagePullPolicy: Always
-#          ports:
-#            - containerPort: 8085
-#              name: http
-#              protocol: TCP
-## service type loadbalancer
-#---
-#apiVersion: v1
-#kind: Service
-#metadata:
-#  labels:
-#    app: appt-app
-#    k8s-app: appt-app
-#  name: appt-app
-#spec:
-#  ports:
-#    - name: http
-#      port: 80
-#      protocol: TCP
-#      targetPort: 8085
-#  type: LoadBalancer
-#  selector:
-#    app: appt-app
-
-
-
-
-
-
-
+##apiVersion: apps/v1
+##kind: Deployment
+##metadata:
+##  labels:
+##    app: appt-app
+##  name: appt-app
+##spec:
+##  replicas: 4
+##  selector:
+##    matchLabels:
+##      app: appt-app
+##  template:
+##    metadata:
+##      labels:
+##        app: appt-app
+##    spec:
+##      containers:
+##        - name: my-appt-app
+##          image: 626635406112.dkr.ecr.us-east-2.amazonaws.com/appointment-management-ecr-repo:latest
+##          imagePullPolicy: Always
+##          ports:
+##            - containerPort: 8085
+##              name: http
+##              protocol: TCP
+### service type loadbalancer
+##---
+##apiVersion: v1
+##kind: Service
+##metadata:
+##  labels:
+##    app: appt-app
+##    k8s-app: appt-app
+##  name: appt-app
+##spec:
+##  ports:
+##    - name: http
+##      port: 80
+##      protocol: TCP
+##      targetPort: 8085
+##  type: LoadBalancer
+##  selector:
+##    app: appt-app
 #
+#
+#
+#
+#
+#
+#
+##
+##apiVersion: networking.k8s.io/v1
+##kind: Ingress
+##metadata:
+##  name: appt-app-ingress
+##  namespace: default
+##  annotations:
+##    kubernetes.io/ingress.class: alb
+##    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+##    alb.ingress.kubernetes.io/scheme: internet-facing
+##    alb.ingress.kubernetes.io/ssl-redirect: '443'
+##    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-2:123456789012:certificate/your-certificate-id # Replace with your actual cert ARN
+##spec:
+##  rules:
+##    - host: appointment-manager.net  # Replace with your actual domain
+##      http:
+##        paths:
+##          - path: /
+##            pathType: Prefix
+##            backend:
+##              service:
+##                name: appt-app
+##                port:
+##                  number: 80
+##  tls:
+##    - hosts:
+##        - appointment-manager.net  # Your domain
+##      secretName: appt-app-tls   # Optional: Only if you want to handle certificates manually
+##
+##---
+##apiVersion: apps/v1
+##kind: Deployment
+##metadata:
+##  labels:
+##    app: appt-app
+##  name: appt-app
+##spec:
+##  replicas: 4
+##  selector:
+##    matchLabels:
+##      app: appt-app
+##  template:
+##    metadata:
+##      labels:
+##        app: appt-app
+##    spec:
+##      containers:
+##        - name: my-appt-app
+##          image: 626635406112.dkr.ecr.us-east-2.amazonaws.com/appointment-management-ecr-repo:latest
+##          imagePullPolicy: Always
+##          ports:
+##            - containerPort: 8085
+##              name: http
+##              protocol: TCP
+##---
+##apiVersion: v1
+##kind: Service
+##metadata:
+##  labels:
+##    app: appt-app
+##    k8s-app: appt-app
+##  name: appt-app
+##spec:
+##  ports:
+##    - name: http
+##      port: 80
+##      protocol: TCP
+##      targetPort: 8085
+##  type: LoadBalancer
+##  selector:
+##    app: appt-app
+#
+#
+## Ingress Configuration
 #apiVersion: networking.k8s.io/v1
 #kind: Ingress
 #metadata:
@@ -55,13 +128,15 @@
 #  namespace: default
 #  annotations:
 #    kubernetes.io/ingress.class: alb
-#    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+#    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'  # Allow HTTP and HTTPS
 #    alb.ingress.kubernetes.io/scheme: internet-facing
 #    alb.ingress.kubernetes.io/ssl-redirect: '443'
-#    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-2:123456789012:certificate/your-certificate-id # Replace with your actual cert ARN
+#    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-2:123456789012:certificate/your-certificate-id # Replace with the correct ARN
+#    alb.ingress.kubernetes.io/healthcheck-path: "/health"  # Your application's health check path
+#    alb.ingress.kubernetes.io/healthcheck-port: "8085"  # The port your app is listening to
 #spec:
 #  rules:
-#    - host: appointment-manager.net  # Replace with your actual domain
+#    - host: appointment-manager.net  # Replace with your domain name
 #      http:
 #        paths:
 #          - path: /
@@ -70,13 +145,15 @@
 #              service:
 #                name: appt-app
 #                port:
-#                  number: 80
+#                  number: 80  # Ingress forwards to Service on port 80
 #  tls:
 #    - hosts:
 #        - appointment-manager.net  # Your domain
-#      secretName: appt-app-tls   # Optional: Only if you want to handle certificates manually
+#      secretName: appt-app-tls   # Optional if handling certificates manually
 #
 #---
+#
+## Deployment Configuration
 #apiVersion: apps/v1
 #kind: Deployment
 #metadata:
@@ -84,7 +161,7 @@
 #    app: appt-app
 #  name: appt-app
 #spec:
-#  replicas: 4
+#  replicas: 4  # Number of application instances
 #  selector:
 #    matchLabels:
 #      app: appt-app
@@ -95,117 +172,40 @@
 #    spec:
 #      containers:
 #        - name: my-appt-app
-#          image: 626635406112.dkr.ecr.us-east-2.amazonaws.com/appointment-management-ecr-repo:latest
+#          image: 626635406112.dkr.ecr.us-east-2.amazonaws.com/appointment-management-ecr-repo:latest  # Replace with your ECR image
 #          imagePullPolicy: Always
 #          ports:
-#            - containerPort: 8085
+#            - containerPort: 8085  # The container listens on port 8085
 #              name: http
 #              protocol: TCP
+#          readinessProbe:  # Optional but recommended to check app health
+#            httpGet:
+#              path: /health  # Ensure this matches your application's health check endpoint
+#              port: 8085
+#            initialDelaySeconds: 10
+#            periodSeconds: 5
+#          livenessProbe:  # Optional to restart unhealthy containers
+#            httpGet:
+#              path: /health  # Application health check path
+#              port: 8085
+#            initialDelaySeconds: 15
+#            periodSeconds: 20
+#
 #---
+#
+## Service Configuration
 #apiVersion: v1
 #kind: Service
 #metadata:
 #  labels:
 #    app: appt-app
-#    k8s-app: appt-app
 #  name: appt-app
 #spec:
 #  ports:
 #    - name: http
-#      port: 80
+#      port: 80  # Service exposes port 80
 #      protocol: TCP
-#      targetPort: 8085
-#  type: LoadBalancer
+#      targetPort: 8085  # Forward traffic to the container on port 8085
+#  type: LoadBalancer  # Creates a load balancer for the service
 #  selector:
 #    app: appt-app
-
-
-# Ingress Configuration
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: appt-app-ingress
-  namespace: default
-  annotations:
-    kubernetes.io/ingress.class: alb
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'  # Allow HTTP and HTTPS
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/ssl-redirect: '443'
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-2:123456789012:certificate/your-certificate-id # Replace with the correct ARN
-    alb.ingress.kubernetes.io/healthcheck-path: "/health"  # Your application's health check path
-    alb.ingress.kubernetes.io/healthcheck-port: "8085"  # The port your app is listening to
-spec:
-  rules:
-    - host: appointment-manager.net  # Replace with your domain name
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: appt-app
-                port:
-                  number: 80  # Ingress forwards to Service on port 80
-  tls:
-    - hosts:
-        - appointment-manager.net  # Your domain
-      secretName: appt-app-tls   # Optional if handling certificates manually
-
----
-
-# Deployment Configuration
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app: appt-app
-  name: appt-app
-spec:
-  replicas: 4  # Number of application instances
-  selector:
-    matchLabels:
-      app: appt-app
-  template:
-    metadata:
-      labels:
-        app: appt-app
-    spec:
-      containers:
-        - name: my-appt-app
-          image: 626635406112.dkr.ecr.us-east-2.amazonaws.com/appointment-management-ecr-repo:latest  # Replace with your ECR image
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 8085  # The container listens on port 8085
-              name: http
-              protocol: TCP
-          readinessProbe:  # Optional but recommended to check app health
-            httpGet:
-              path: /health  # Ensure this matches your application's health check endpoint
-              port: 8085
-            initialDelaySeconds: 10
-            periodSeconds: 5
-          livenessProbe:  # Optional to restart unhealthy containers
-            httpGet:
-              path: /health  # Application health check path
-              port: 8085
-            initialDelaySeconds: 15
-            periodSeconds: 20
-
----
-
-# Service Configuration
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: appt-app
-  name: appt-app
-spec:
-  ports:
-    - name: http
-      port: 80  # Service exposes port 80
-      protocol: TCP
-      targetPort: 8085  # Forward traffic to the container on port 8085
-  type: LoadBalancer  # Creates a load balancer for the service
-  selector:
-    app: appt-app
